@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a10">
+<link rel="manifest" href="manifest.webmanifest">
+<title>VOX V2 · Dictado inteligente</title>
+<style>
+:root{
+  --bg:#07090e;--panel:rgba(255,255,255,.055);--panel2:rgba(255,255,255,.035);
+  --line:rgba(255,255,255,.09);--text:#f8f9fc;--muted:#9aa3b6;
+  --vio:#8b5cf6;--cyan:#22d3ee;--pink:#fb7185;--green:#34d399;--amber:#fbbf24;
+  --shadow:0 30px 80px rgba(0,0,0,.38);--r:28px
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{min-height:100vh;min-height:100dvh;background:
+radial-gradient(circle at 8% -5%,rgba(139,92,246,.25),transparent 33%),
+radial-gradient(circle at 100% 16%,rgba(34,211,238,.13),transparent 30%),
+radial-gradient(circle at 55% 120%,rgba(139,92,246,.12),transparent 40%),#07090e}
+button,input,textarea,select{font:inherit}.hidden{display:none!important}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.app{max-width:1480px;margin:auto;padding:20px 20px 45px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:14px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--vio),var(--cyan));font-weight:900;box-shadow:0 16px 40px rgba(139,92,246,.28)}
+.brand h1{margin:0;font-size:20px}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.top-actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);border-radius:15px;padding:11px 14px;min-height:44px;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.btn:hover{background:rgba(255,255,255,.09)}.btn.primary{background:linear-gradient(135deg,var(--vio),#6557dc);border-color:transparent}.btn.green{background:linear-gradient(135deg,#10b981,#059669);border-color:transparent}.btn:disabled{opacity:.4;cursor:not-allowed}
+.shell{display:grid;grid-template-columns:1.02fr 1.28fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.left{padding:19px;display:flex;flex-direction:column;min-height:720px}.fields{display:grid;grid-template-columns:1.25fr .8fr;gap:10px}.field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin:0 0 7px 3px}
+.field input,.field select{width:100%;background:rgba(0,0,0,.24);border:1px solid var(--line);color:var(--text);border-radius:15px;padding:12px 13px;outline:none}
+.field input:focus,.field select:focus{border-color:rgba(139,92,246,.7);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+.templates{display:flex;gap:7px;overflow:auto;padding:14px 1px 2px}.chip{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--muted);border-radius:999px;padding:8px 11px;font-size:11px}.chip.active{color:white;border-color:rgba(139,92,246,.65);background:rgba(139,92,246,.14)}
+.stage{flex:1;min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center}.label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}.timer{font-size:62px;font-weight:800;letter-spacing:-4px;font-variant-numeric:tabular-nums;line-height:1;margin-top:12px}
+.state{font-size:13px;color:var(--muted);margin-top:10px;display:flex;gap:7px;align-items:center}.sdot{width:7px;height:7px;border-radius:50%;background:#737b8e}.state.live{color:#fecdd3}.state.live .sdot{background:var(--pink);box-shadow:0 0 15px var(--pink)}
+.wave{width:min(100%,430px);height:88px;margin:28px 0 17px}.wave canvas{width:100%;height:100%;display:block}
+.recwrap{width:132px;height:132px;display:grid;place-items:center;position:relative}.pulse,.pulse2{position:absolute;width:100%;height:100%;border-radius:50%;opacity:0}.recording .pulse{animation:pulse 1.9s infinite}.recording .pulse2{animation:pulse 1.9s .85s infinite}@keyframes pulse{0%{transform:scale(.76);opacity:.7;border:1px solid rgba(251,113,133,.65)}100%{transform:scale(1.48);opacity:0;border:1px solid rgba(251,113,133,0)}}
+.recbtn{width:96px;height:96px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:linear-gradient(145deg,#ff526e,#d21d44);box-shadow:0 21px 60px rgba(251,113,133,.28);display:grid;place-items:center}.recicon{width:29px;height:29px;border-radius:50%;background:white;transition:.22s}.recording .recicon{border-radius:7px;width:27px;height:27px}
+.controls{display:flex;gap:8px;margin-top:22px}.footerhint{font-size:11px;color:var(--muted);text-align:center;margin-top:15px}
+.right{display:grid;grid-template-rows:auto auto 1fr;gap:18px;min-width:0}.panel{padding:19px}.head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.title{font-size:15px;font-weight:750}.sub{font-size:11px;color:var(--muted);margin-top:3px}.tag{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+textarea{width:100%;resize:vertical;min-height:215px;background:rgba(0,0,0,.19);border:0;outline:0;color:var(--text);border-radius:18px;padding:17px;line-height:1.6;font-size:15px}
+.textactions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.structured{min-height:240px}.structured textarea{min-height:180px}
+.library{min-height:250px}.filters{display:grid;grid-template-columns:1fr 150px 120px;gap:8px;margin-bottom:12px}.filters input,.filters select{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--line);color:var(--text);border-radius:13px;padding:10px 11px;outline:none}
+.list{display:grid;gap:9px;max-height:310px;overflow:auto}.item{display:grid;grid-template-columns:46px 1fr auto;gap:11px;align-items:center;padding:11px;border-radius:16px;background:var(--panel2);border:1px solid rgba(255,255,255,.065)}
+.ico{width:43px;height:43px;border-radius:13px;background:rgba(139,92,246,.13);display:grid;place-items:center}.ititle{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.imeta{font-size:10px;color:var(--muted);margin-top:4px}.iactions{display:flex;gap:6px}.ibtn{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);display:grid;place-items:center}.ibtn:hover{color:white;background:rgba(255,255,255,.08)}
+.toast{position:fixed;right:18px;bottom:18px;z-index:100;max-width:min(390px,calc(100vw - 30px));background:#151922;border:1px solid var(--line);border-radius:17px;padding:13px 15px;box-shadow:var(--shadow);opacity:0;transform:translateY(16px);pointer-events:none;transition:.23s}.toast.show{opacity:1;transform:none}.toast strong{font-size:12px;display:block}.toast span{font-size:11px;color:var(--muted);display:block;margin-top:3px;line-height:1.4}
+.nav{display:none}
+@media(max-width:980px){.app{padding:14px 14px 88px}.shell{grid-template-columns:1fr}.left{min-height:auto}.stage{min-height:410px}.right{grid-template-rows:auto auto auto}.nav{display:flex;position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:10px;width:min(430px,calc(100vw - 22px));height:66px;background:rgba(14,17,24,.88);border:1px solid var(--line);backdrop-filter:blur(24px);border-radius:22px;justify-content:space-around;align-items:center;box-shadow:0 20px 50px rgba(0,0,0,.42)}.nav button{border:0;background:none;color:var(--muted);font-size:10px;display:grid;gap:4px;place-items:center}.nav button b{font-size:17px}.nav button.active{color:white}}
+@media(max-width:560px){.top{margin-bottom:12px}.brand p{display:none}.top-actions .install-label{display:none}.card{border-radius:23px}.left,.panel{padding:15px}.fields{grid-template-columns:1fr}.timer{font-size:51px}.stage{min-height:370px}.wave{height:74px;margin:22px 0 11px}.recwrap{width:116px;height:116px}.recbtn{width:85px;height:85px}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}.iactions .rename,.iactions .delete{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo">V</div><div><h1>VOX V2</h1><p>Dictado institucional inteligente</p></div></div>
+  <div class="top-actions">
+    <button class="btn" id="installBtn" style="display:none">＋ <span class="install-label">Instalar app</span></button>
+    <button class="btn" id="newBtn">＋ Nuevo</button>
+  </div>
+</header>
+
+<main class="shell">
+<section class="card left" id="recordPanel">
+  <div class="fields">
+    <div class="field"><label>Título</label><input id="titleInput" placeholder="Ej. Informe expediente Pérez"></div>
+    <div class="field"><label>Categoría</label>
+      <select id="categorySelect"><option>Dictado</option><option>Informe</option><option>Nota</option><option>Minuta</option><option>Dictamen</option><option>Reunión</option><option>Idea</option><option>Otro</option></select>
+    </div>
+  </div>
+  <div class="templates" id="templateChips">
+    <button class="chip active" data-template="Dictado">Dictado libre</button>
+    <button class="chip" data-template="Informe">Informe</button>
+    <button class="chip" data-template="Nota">Nota</button>
+    <button class="chip" data-template="Minuta">Minuta</button>
+    <button class="chip" data-template="Dictamen">Dictamen</button>
+    <button class="chip" data-template="Reunión">Reunión</button>
+  </div>
+
+  <div class="stage">
+    <div class="label">Sesión de voz</div>
+    <div class="timer" id="timer">00:00</div>
+    <div class="state" id="recState"><span class="sdot"></span><span>Listo para grabar</span></div>
+    <div class="wave"><canvas id="wave"></canvas></div>
+    <div class="recwrap" id="recWrap"><span class="pulse"></span><span class="pulse2"></span><button class="recbtn" id="recBtn"><span class="recicon"></span></button></div>
+    <div class="controls"><button class="btn" id="pauseBtn" disabled>Ⅱ Pausar</button><button class="btn" id="stopBtn" disabled>■ Finalizar</button></div>
+    <div class="footerhint">Chrome recomendado · idioma es-AR · autoguardado local activo</div>
+  </div>
+</section>
+
+<div class="right">
+<section class="card panel" id="textPanel">
+  <div class="head"><div><div class="title">Transcripción en vivo</div><div class="sub">Podés corregir el texto mientras dictás.</div></div><div class="tag" id="speechTag">En espera</div></div>
+  <textarea id="transcript" placeholder="Tu voz aparecerá aquí…"></textarea>
+  <div class="textactions"><button class="btn" id="copyBtn">Copiar</button><button class="btn" id="clearBtn">Limpiar</button><button class="btn primary" id="structureBtn">Estructurar</button></div>
+</section>
+
+<section class="card panel structured" id="structuredPanel">
+  <div class="head"><div><div class="title">Documento estructurado</div><div class="sub">VOX organiza el dictado según la plantilla elegida, sin IA paga.</div></div><div class="tag" id="templateTag">Dictado</div></div>
+  <textarea id="structuredText" placeholder="Presioná “Estructurar” para convertir el dictado en una plantilla editable…"></textarea>
+  <div class="textactions"><button class="btn" id="copyStructuredBtn">Copiar</button><button class="btn green" id="saveBtn" disabled>Guardar audio + TXT + Doc</button></div>
+</section>
+
+<section class="card panel library" id="libraryPanel">
+  <div class="head"><div><div class="title">Biblioteca VOX</div><div class="sub">Grabaciones guardadas en Drive.</div></div><button class="btn" id="refreshBtn">↻</button></div>
+  <div class="filters"><input id="searchInput" placeholder="Buscar por título…"><select id="filterCategory"><option value="">Todas</option><option>Dictado</option><option>Informe</option><option>Nota</option><option>Minuta</option><option>Dictamen</option><option>Reunión</option><option>Idea</option><option>Otro</option></select><select id="sortSelect"><option value="new">Más recientes</option><option value="old">Más antiguas</option></select></div>
+  <div class="list" id="libraryList"><div style="color:var(--muted);font-size:12px">Cargando biblioteca…</div></div>
+</section>
+</div>
+</main>
+</div>
+
+<nav class="nav">
+<button class="active" data-target="recordPanel"><b>●</b>Grabar</button>
+<button data-target="textPanel"><b>≡</b>Texto</button>
+<button data-target="structuredPanel"><b>✦</b>Documento</button>
+<button data-target="libraryPanel"><b>▣</b>Biblioteca</button>
+</nav>
+
+<form id="postForm" method="post" target="transport" class="hidden">
+<input name="action"><input name="token"><input name="title"><input name="category"><input name="template"><input name="transcript"><input name="structuredText"><input name="mimeType"><input name="audioBase64"><input name="duration"><input name="id">
+</form>
+<iframe name="transport" id="transport" class="hidden"></iframe>
+<div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
+
+<script>
+const BACKEND_URL='PEGAR_AQUI_URL_WEB_APP_APPS_SCRIPT';
+const APP_TOKEN='PEGAR_LA_MISMA_CLAVE_DE_CODE_GS';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+let mediaRecorder=null,mediaStream=null,audioChunks=[],audioBlob=null;
+let startedAt=0,elapsedBeforePause=0,timerInt=null,isPaused=false;
+let recognition=null,recognizing=false,keepRecognition=false,finalTranscript='';
+let audioCtx=null,analyser=null,sourceNode=null,raf=null;
+let historyItems=[],currentTemplate='Dictado',deferredPrompt=null;
+
+const templates={
+'Dictado': t=>t.trim(),
+'Informe': t=>`# INFORME\n\n**Objeto**\n${firstSentence(t)}\n\n**Antecedentes**\n${t.trim()}\n\n**Consideraciones**\n[Completar consideraciones relevantes]\n\n**Conclusión**\n[Completar conclusión o recomendación]`,
+'Nota': t=>`# NOTA\n\n**Asunto:** ${firstSentence(t)}\n\nMe dirijo a Ud. a fin de poner en su conocimiento lo siguiente:\n\n${t.trim()}\n\nSin otro particular, saludo atentamente.`,
+'Minuta': t=>`# MINUTA\n\n**Tema**\n${firstSentence(t)}\n\n**Puntos tratados**\n- ${sentences(t).slice(0,6).join('\n- ')}\n\n**Decisiones / acuerdos**\n- [Completar]\n\n**Próximas acciones**\n- [Completar responsable y fecha]`,
+'Dictamen': t=>`# DICTAMEN\n\n**I. Antecedentes**\n${t.trim()}\n\n**II. Análisis**\n[Desarrollar fundamentos jurídicos]\n\n**III. Conclusión**\n[Completar opinión o recomendación]`,
+'Reunión': t=>`# REGISTRO DE REUNIÓN\n\n**Síntesis**\n${firstSentence(t)}\n\n**Temas abordados**\n- ${sentences(t).slice(0,7).join('\n- ')}\n\n**Acuerdos**\n- [Completar]\n\n**Pendientes**\n- [Completar]`
+};
+
+function firstSentence(t){return sentences(t)[0]||t.trim().slice(0,180)||'[Completar]'}
+function sentences(t){return (t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[]).map(s=>s.trim()).filter(Boolean)}
+function configured(){return BACKEND_URL.startsWith('https://script.google.com/')&&!APP_TOKEN.startsWith('PEGAR_')}
+function toast(a,b=''){ $('#toastTitle').textContent=a;$('#toastText').textContent=b;$('#toast').classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>$('#toast').classList.remove('show'),3200)}
+function fmt(ms){const s=Math.max(0,Math.floor(ms/1000));return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
+function elapsed(){return elapsedBeforePause+(startedAt?Date.now()-startedAt:0)}
+function startTimer(){clearInterval(timerInt);timerInt=setInterval(()=>$('#timer').textContent=fmt(elapsed()),250)}
+function stopTimer(){clearInterval(timerInt);$('#timer').textContent=fmt(elapsed())}
+function recState(txt,live=false){$('#recState').querySelector('span:last-child').textContent=txt;$('#recState').classList.toggle('live',live)}
+function mime(){return ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported(x))||''}
+
+function initRecognition(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$('#speechTag').textContent='No compatible';return}
+ recognition=new SR();recognition.lang='es-AR';recognition.continuous=true;recognition.interimResults=true;
+ recognition.onstart=()=>{recognizing=true;$('#speechTag').textContent='Escuchando'}
+ recognition.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){let x=e.results[i][0].transcript;if(e.results[i].isFinal)finalTranscript+=x.trim()+' ';else interim+=x}$('#transcript').value=(finalTranscript+interim).trimStart();draftSave()}
+ recognition.onerror=e=>{if(!['no-speech','aborted'].includes(e.error))toast('Transcripción',e.error)}
+ recognition.onend=()=>{recognizing=false;if(keepRecognition&&!isPaused&&mediaRecorder?.state==='recording'){try{recognition.start()}catch{}}else $('#speechTag').textContent=isPaused?'Pausada':'En espera'}
+}
+function startRecognition(){if(!recognition)initRecognition();keepRecognition=true;if(recognition&&!recognizing)try{recognition.start()}catch{}}
+function stopRecognition(){keepRecognition=false;if(recognition&&recognizing)try{recognition.stop()}catch{}}
+
+async function startRecording(){
+ try{
+  mediaStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  audioChunks=[];audioBlob=null;elapsedBeforePause=0;startedAt=Date.now();isPaused=false;
+  const m=mime();mediaRecorder=m?new MediaRecorder(mediaStream,{mimeType:m}):new MediaRecorder(mediaStream);
+  mediaRecorder.ondataavailable=e=>{if(e.data?.size)audioChunks.push(e.data)};
+  mediaRecorder.onstop=()=>{audioBlob=new Blob(audioChunks,{type:mediaRecorder.mimeType||'audio/webm'});$('#saveBtn').disabled=false;teardownViz();mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null}
+  mediaRecorder.start(1000);startTimer();startRecognition();setupViz(mediaStream);
+  $('#recWrap').classList.add('recording');$('#pauseBtn').disabled=false;$('#stopBtn').disabled=false;$('#saveBtn').disabled=true;recState('Grabando',true)
+ }catch(e){toast('Micrófono no disponible','Revisá el permiso de micrófono en Chrome.')}
+}
+function pauseRecording(){
+ if(mediaRecorder?.state==='recording'){mediaRecorder.pause();elapsedBeforePause+=Date.now()-startedAt;startedAt=0;isPaused=true;stopTimer();stopRecognition();$('#pauseBtn').textContent='▶ Reanudar';$('#recWrap').classList.remove('recording');recState('Pausada')}
+ else if(mediaRecorder?.state==='paused'){mediaRecorder.resume();startedAt=Date.now();isPaused=false;startTimer();startRecognition();$('#pauseBtn').textContent='Ⅱ Pausar';$('#recWrap').classList.add('recording');recState('Grabando',true)}
+}
+function stopRecording(){
+ if(!mediaRecorder||mediaRecorder.state==='inactive')return;if(startedAt){elapsedBeforePause+=Date.now()-startedAt;startedAt=0}isPaused=false;stopTimer();stopRecognition();try{mediaRecorder.stop()}catch{}
+ $('#recWrap').classList.remove('recording');$('#pauseBtn').disabled=true;$('#stopBtn').disabled=true;$('#pauseBtn').textContent='Ⅱ Pausar';recState('Finalizada');$('#speechTag').textContent='Finalizada';
+ if(!$('#titleInput').value.trim())$('#titleInput').value='Grabación '+new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});draftSave()
+}
+function setupViz(stream){
+ const c=$('#wave'),ctx=c.getContext('2d'),d=Math.min(devicePixelRatio||1,2),r=c.getBoundingClientRect();c.width=r.width*d;c.height=r.height*d;
+ audioCtx=new (AudioContext||webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;sourceNode=audioCtx.createMediaStreamSource(stream);sourceNode.connect(analyser);const data=new Uint8Array(analyser.frequencyBinCount);
+ function draw(){raf=requestAnimationFrame(draw);analyser.getByteFrequencyData(data);ctx.clearRect(0,0,c.width,c.height);let bars=38,gap=c.width/bars,mid=c.height/2;for(let i=0;i<bars;i++){let a=data[Math.floor(i*data.length/bars)]/255,h=Math.max(5*d,a*c.height*.82),x=i*gap+gap*.2,w=gap*.55,g=ctx.createLinearGradient(0,mid-h/2,0,mid+h/2);g.addColorStop(0,'rgba(34,211,238,.92)');g.addColorStop(1,'rgba(139,92,246,.92)');ctx.fillStyle=g;ctx.beginPath();ctx.roundRect?ctx.roundRect(x,mid-h/2,w,h,w/2):ctx.rect(x,mid-h/2,w,h);ctx.fill()}}draw()
+}
+function teardownViz(){if(raf)cancelAnimationFrame(raf);try{sourceNode?.disconnect()}catch{}try{audioCtx?.close()}catch{}raf=null;sourceNode=analyser=audioCtx=null}
+
+function structure(){
+ const t=$('#transcript').value.trim();if(!t){toast('Sin texto','Primero dictá o escribí una transcripción.');return}
+ const fn=templates[currentTemplate]||templates.Dictado;$('#structuredText').value=fn(t);toast('Documento estructurado',`Plantilla: ${currentTemplate}`);draftSave()
+}
+function draftSave(){localStorage.setItem('vox_v2_draft',JSON.stringify({title:$('#titleInput').value,category:$('#categorySelect').value,template:currentTemplate,transcript:$('#transcript').value,structured:$('#structuredText').value}))}
+function loadDraft(){try{let d=JSON.parse(localStorage.getItem('vox_v2_draft')||'{}');if(d.title)$('#titleInput').value=d.title;if(d.category)$('#categorySelect').value=d.category;if(d.template)setTemplate(d.template);if(d.transcript){$('#transcript').value=d.transcript;finalTranscript=d.transcript+' '}if(d.structured)$('#structuredText').value=d.structured}catch{}}
+function newSession(){if((mediaRecorder&&mediaRecorder.state!=='inactive'))return toast('Grabación activa','Finalizá la grabación antes de comenzar otra.');$('#titleInput').value='';$('#transcript').value='';$('#structuredText').value='';finalTranscript='';audioBlob=null;audioChunks=[];elapsedBeforePause=0;startedAt=0;$('#timer').textContent='00:00';$('#saveBtn').disabled=true;localStorage.removeItem('vox_v2_draft');setTemplate('Dictado');recState('Listo para grabar');window.scrollTo({top:0,behavior:'smooth'})}
+function setTemplate(t){currentTemplate=t;$('#templateTag').textContent=t;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.template===t));if([...$('#categorySelect').options].some(o=>o.value===t))$('#categorySelect').value=t;draftSave()}
+
+function blob64(blob){return new Promise((res,rej)=>{let r=new FileReader();r.onloadend=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(blob)})}
+function post(vals){if(!configured())return toast('Falta configuración','Configurá BACKEND_URL y APP_TOKEN.');const f=$('#postForm');f.action=BACKEND_URL;Object.entries(vals).forEach(([k,v])=>{if(f.elements[k])f.elements[k].value=v??''});f.submit()}
+async function save(){
+ if(!audioBlob)return toast('Sin audio','Finalizá una grabación antes de guardar.');$('#saveBtn').disabled=true;$('#saveBtn').textContent='Guardando…';
+ try{post({action:'save',token:APP_TOKEN,title:$('#titleInput').value.trim()||'Grabación',category:$('#categorySelect').value,template:currentTemplate,transcript:$('#transcript').value.trim(),structuredText:$('#structuredText').value.trim(),mimeType:audioBlob.type||'audio/webm',audioBase64:await blob64(audioBlob),duration:$('#timer').textContent})}
+ catch(e){$('#saveBtn').disabled=false;$('#saveBtn').textContent='Guardar audio + TXT + Doc';toast('Error','No se pudo preparar el audio.')}
+}
+function loadHistory(){
+ if(!configured()){renderHistory([]);return}
+ const cb='voxHistory_'+Date.now();window[cb]=data=>{historyItems=data?.items||[];applyFilters();delete window[cb];script.remove()}
+ const script=document.createElement('script');script.src=BACKEND_URL+'?action=history&token='+encodeURIComponent(APP_TOKEN)+'&callback='+cb+'&_='+Date.now();document.body.appendChild(script)
+}
+function applyFilters(){
+ let q=$('#searchInput').value.trim().toLowerCase(),cat=$('#filterCategory').value,sort=$('#sortSelect').value;
+ let a=historyItems.filter(x=>(!q||String(x.title||'').toLowerCase().includes(q))&&(!cat||x.category===cat));
+ a.sort((x,y)=>sort==='old'?String(x.createdAt).localeCompare(String(y.createdAt)):String(y.createdAt).localeCompare(String(x.createdAt)));renderHistory(a)
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderHistory(items){
+ let root=$('#libraryList');if(!items.length){root.innerHTML='<div style="color:var(--muted);font-size:12px">No hay resultados.</div>';return}
+ root.innerHTML=items.map(x=>`<div class="item"><div class="ico">🎙</div><div style="min-width:0"><div class="ititle">${esc(x.title)}</div><div class="imeta">${esc(x.category)} · ${esc(x.dateLabel)} · ${esc(x.duration||'')}</div></div><div class="iactions">${x.docUrl?`<a class="ibtn" href="${x.docUrl}" target="_blank" title="Google Doc">D</a>`:''}${x.folderUrl?`<a class="ibtn" href="${x.folderUrl}" target="_blank" title="Drive">↗</a>`:''}<button class="ibtn rename" onclick="renameItem('${x.id}','${esc(String(x.title).replace(/'/g,'&#39;'))}')">✎</button><button class="ibtn delete" onclick="deleteItem('${x.id}')">×</button></div></div>`).join('')
+}
+function deleteItem(id){if(confirm('¿Enviar esta grabación a la papelera?'))post({action:'delete',token:APP_TOKEN,id})}
+function renameItem(id,title){let n=prompt('Nuevo título:',title);if(n?.trim())post({action:'rename',token:APP_TOKEN,id,title:n.trim()})}
+
+window.addEventListener('message',e=>{let m=e.data;if(!m||m.source!=='VOX_BACKEND')return;
+ if(m.type==='saved'){ $('#saveBtn').disabled=false;$('#saveBtn').textContent='Guardar audio + TXT + Doc'; if(m.data?.ok){toast('Guardado','Audio, TXT y Google Doc almacenados.');localStorage.removeItem('vox_v2_draft');loadHistory()}else toast('Error',m.data?.message||'No se pudo guardar')}
+ if(m.type==='deleted'){toast('Eliminado','Grabación enviada a la papelera.');loadHistory()}
+ if(m.type==='renamed'){toast('Renombrado','Título actualizado.');loadHistory()}
+ if(m.type==='error'){ $('#saveBtn').disabled=!audioBlob;$('#saveBtn').textContent='Guardar audio + TXT + Doc';toast('Error',m.data?.message||'Error del servidor')}
+});
+
+$('#recBtn').onclick=()=>{if(!mediaRecorder||mediaRecorder.state==='inactive')startRecording()};$('#pauseBtn').onclick=pauseRecording;$('#stopBtn').onclick=stopRecording;$('#structureBtn').onclick=structure;$('#saveBtn').onclick=save;$('#newBtn').onclick=newSession;$('#refreshBtn').onclick=loadHistory;
+$('#copyBtn').onclick=()=>navigator.clipboard.writeText($('#transcript').value).then(()=>toast('Copiado'));$('#copyStructuredBtn').onclick=()=>navigator.clipboard.writeText($('#structuredText').value).then(()=>toast('Copiado'));
+$('#clearBtn').onclick=()=>{if(!$('#transcript').value||confirm('¿Limpiar la transcripción?')){$('#transcript').value='';finalTranscript='';draftSave()}};
+$$('.chip').forEach(x=>x.onclick=()=>setTemplate(x.dataset.template));['titleInput','categorySelect','transcript','structuredText'].forEach(id=>$('#'+id).addEventListener('input',draftSave));
+['searchInput','filterCategory','sortSelect'].forEach(id=>$('#'+id).addEventListener('input',applyFilters));$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.target).scrollIntoView({behavior:'smooth',block:'start'})});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').style.display='inline-flex'});$('#installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('#installBtn').style.display='none'};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+initRecognition();loadDraft();loadHistory();
+</script>
+</body>
+</html>
